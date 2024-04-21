@@ -10,16 +10,17 @@ import java.util.Arrays;
 public class Server {
 
     private ServerSocket server;
-    private int[] array = {
+    private final int[] array = {
             982473,2349587,356,34567,9678123,6789,345623,67845,8,23,9,3456,234,67,237698,2346,32548,
             789,15467,7890,23462,9234,8564,3,90,6,67,8975645,667,7823,48,9,1,8,89,45346,788,45687,9,
             2789,34567845,257,987,4,768,43,455,234,4567,87
     };
-    private int numOfEdgeNodes = 3;
+    private final int numOfEdgeNodes = 3;
     private int chunkSize;
     private int totalSum = 0;
     private int [][]chunks;
     int respondedNodes = 0;
+    private final ArrayList<ClientHandler> clientHandlers = new ArrayList<>();
 
 
 
@@ -35,14 +36,16 @@ public class Server {
     public void run() {
         chunkInitializer(array);
         int clientNumber=0;
+        System.out.println("Server is running...");
         try {
-            while (true) {
+            while (clientNumber < numOfEdgeNodes) {
                 Socket client = server.accept();
 
-                Thread clientThread = new Thread(new ClientHandler(client, chunks[clientNumber]));
+                ClientHandler clientHandler = new ClientHandler(client, chunks[clientNumber]);
+                clientHandlers.add(clientHandler);
+                Thread clientThread = new Thread(clientHandler);
                 clientNumber++;
                 clientThread.start();
-
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -65,9 +68,17 @@ public class Server {
         }
     }
 
+    public int calculateSumOfAllResponse() {
+        for (ClientHandler clientHandler : clientHandlers) {
+            totalSum += clientHandler.getResult();
+        }
+        return totalSum;
+    }
+
     public static void main(String[] args) {
         Server server = new Server();
         server.run();
+        System.out.println(server.calculateSumOfAllResponse());
     }
 
 }

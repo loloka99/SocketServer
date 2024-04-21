@@ -3,6 +3,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Arrays;
+import java.util.stream.IntStream;
 
 public class Client implements Runnable {
     private Socket client;
@@ -19,17 +21,16 @@ public class Client implements Runnable {
 
             // Fogadja az adatot a szervertol
             String input = in.readLine();
-            System.out.println("Kapott szam: " + input);
 
-            int number = Integer.parseInt(input); // szam atalakitasa inte
-            System.out.println(number);
-            int sum = sumCalculator(number);
-            System.out.println(sum);
+            int sum = Arrays.stream(input.split(" "))         // Szóköz mentén felbontjuk a sztringet és egy Streammé alakítjuk az elemeket
+                    .mapToInt(Integer::parseInt)                    // Az elemeket átalakítjuk egész számokká
+                    .map(number -> IntStream.rangeClosed(1, number) // Minden számra alkalmazzuk az osztók összegzését
+                            .filter(i -> number % i == 0)
+                            .sum())
+                    .sum();
 
-            // VÃ¡lasz elkÃ¼ldÃ©se a szervernek
             out.println(sum);
-
-            // BezÃ¡rÃ¡si folyamat
+            System.out.println(sum);
             shutDown();
         } catch (IOException e) {
             e.printStackTrace();

@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 public class ClientHandler implements Runnable {
     private Socket clientSocket;
     private int[] array ;
+    private  int result;
 
     public ClientHandler(Socket clientSocket, int[] array) {
         this.clientSocket = clientSocket;
@@ -21,15 +22,20 @@ public class ClientHandler implements Runnable {
                 PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
                 BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 ){
+            //Converting to string
             String arrayAsString = Arrays.stream(array)
                     .mapToObj(String::valueOf)
                     .collect(Collectors.joining(" "));
 
-            // Az egész tömb sztringként történő elküldése a kliensnek egyetlen sorban
             out.println(arrayAsString);
-
+            String response = in.readLine();
+            result = Integer.parseInt(response);
         } catch (IOException e){
             e.printStackTrace();
         }
+    }
+
+    public int getResult() {
+        return result;
     }
 }
