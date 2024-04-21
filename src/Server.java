@@ -4,6 +4,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Server {
 
@@ -16,20 +18,23 @@ public class Server {
     private int numOfEdgeNodes = 3;
     private int chunkSize;
     private int totalSum = 0;
+    private int [][]chunks;
+    int respondedNodes = 0;
 
 
 
     public Server() {
         try {
             server = new ServerSocket(9999);
-            chunkSize = array.length % numOfEdgeNodes;
+            chunkSize = array.length / numOfEdgeNodes;
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void run() {
-        int respondedNodes = 0;
+        chunkInitializer(array);
+
         try {
             while (respondedNodes < numOfEdgeNodes) {
                 Socket client = server.accept();
@@ -46,8 +51,9 @@ public class Server {
                 String result = in.readLine();
                 System.out.println("Kapott eredmény: " + result);
 
-                
 
+
+                respondedNodes++;
                 // Bezárja az adatfolyamokat és a socketet
                 in.close();
                 out.close();
@@ -55,6 +61,22 @@ public class Server {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void chunkInitializer (int []array){
+        chunks = new int[numOfEdgeNodes][chunkSize];
+        int lastIndex=0;
+        for (int i=0; i<numOfEdgeNodes ; i++){
+            int endIndex = (chunkSize*i) + chunkSize;
+            for (int j=0; j<chunkSize; j++){
+                chunks[i][j] = array[lastIndex];
+                lastIndex++;
+            }
+        }
+        chunks[numOfEdgeNodes-1] =Arrays.copyOf(chunks[numOfEdgeNodes-1],chunkSize+(array.length-lastIndex));
+        while (lastIndex < array.length){
+            chunks[numOfEdgeNodes-1][chunkSize++] = array[lastIndex++];
         }
     }
 
