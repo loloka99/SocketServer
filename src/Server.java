@@ -34,30 +34,15 @@ public class Server {
 
     public void run() {
         chunkInitializer(array);
-
+        int clientNumber=0;
         try {
-            while (respondedNodes < numOfEdgeNodes) {
+            while (true) {
                 Socket client = server.accept();
-                PrintWriter out = new PrintWriter(client.getOutputStream(), true);
-                BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 
-                // Generál egy véletlen számot
-                int randomNumber = (int) (Math.random() * 100);
+                Thread clientThread = new Thread(new ClientHandler(client, chunks[clientNumber]));
+                clientNumber++;
+                clientThread.start();
 
-                // Elküldi a véletlen számot a kliensnek
-                out.println(randomNumber);
-
-                // Fogadja az eredményt a klienstől
-                String result = in.readLine();
-                System.out.println("Kapott eredmény: " + result);
-
-
-
-                respondedNodes++;
-                // Bezárja az adatfolyamokat és a socketet
-                in.close();
-                out.close();
-                client.close();
             }
         } catch (IOException e) {
             e.printStackTrace();
