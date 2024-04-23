@@ -26,7 +26,6 @@ public class ClientHandler implements Runnable {
             String arrayAsString = Arrays.stream(array)
                     .mapToObj(String::valueOf)
                     .collect(Collectors.joining(" "));
-
             out.println(arrayAsString);
             String response = in.readLine();
             result = Integer.parseInt(response);

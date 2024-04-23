@@ -30,21 +30,11 @@ public class Client implements Runnable {
                     .sum();
 
             out.println(sum);
-            System.out.println(sum);
+
             shutDown();
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    private int sumCalculator(int number){
-        int sum=0;
-        for(int i=1; i<=number; i++){
-            if (number%i==0){
-                sum+=i;
-            }
-        }
-        return sum;
     }
 
     public void shutDown() {
