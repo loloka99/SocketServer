@@ -1,24 +1,24 @@
+package Server;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Scanner;
 
-public class Server {
+public class StaticServer implements ServerStrategy{
 
     private ServerSocket server;
-    String fileName = "src/input.txt";
-    int[] array = readTaskFromFile(fileName);
     private final int numOfEdgeNodes = 3;
+    private int[] array = (new Task()).readTaskFromFile();
     private int chunkSize;
     private int totalSum = 0;
     private int [][]chunks;
     int respondedNodes = 0;
     private final ArrayList<ClientHandler> clientHandlers = new ArrayList<>();
 
-    public Server() {
+    public StaticServer() {
         try {
             server = new ServerSocket(9999);
             chunkSize = array.length / numOfEdgeNodes;
@@ -69,36 +69,11 @@ public class Server {
         }
     }
 
-    public int calculateSumOfAllResponse() {
+    public int calculateTotal() {
         for (ClientHandler clientHandler : clientHandlers) {
             totalSum += clientHandler.getResult();
         }
         return totalSum;
-    }
-
-    public int[] readTaskFromFile(String fileName){
-        try {
-            File file = new File(fileName);
-            Scanner scanner = new Scanner(file);
-            //reading text
-            String line = scanner.nextLine();
-            String[] numbersAsString = line.split("\\s+");
-            int[] numbers = new int[numbersAsString.length];
-            //converting text to numbers
-            for (int i = 0; i < numbersAsString.length; i++) {
-                numbers[i] = Integer.parseInt(numbersAsString[i]);
-            }
-            scanner.close();
-            return numbers;
-        } catch (FileNotFoundException e) {
-            System.err.println("File not found: " + fileName);
-            e.printStackTrace();
-            return new int[0];
-        } catch (NumberFormatException e) {
-            System.err.println("The file contains not number characters");
-            e.printStackTrace();
-            return new int[0];
-        }
     }
 }
 
