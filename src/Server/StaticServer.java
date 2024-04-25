@@ -17,6 +17,7 @@ public class StaticServer implements ServerStrategy{
     private int [][]chunks;
     int respondedNodes = 0;
     private final ArrayList<ClientHandler> clientHandlers = new ArrayList<>();
+    TimeMeasurement timer = new TimeMeasurement();
 
     public StaticServer() {
         try {
@@ -37,15 +38,21 @@ public class StaticServer implements ServerStrategy{
                 Socket client = server.accept();
                 ClientHandler clientHandler = new ClientHandler(client, chunks[clientNumber]);
                 clientHandlers.add(clientHandler);
+                clientNumber++;
+            }
+            // Start client handlers after all clients have connected
+            timer.start();
+            for(ClientHandler clientHandler: clientHandlers){
                 Thread clientThread = new Thread(clientHandler);
                 clientThreads.add(clientThread);
                 clientThread.start();
-                clientNumber++;
             }
             //waiting for all client response
             for (Thread clientThread : clientThreads) {
                 clientThread.join();
             }
+            totalSum = calculateTotal();
+            timer.stop();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -53,6 +60,7 @@ public class StaticServer implements ServerStrategy{
         }
     }
 
+    //dividing task
     public void chunkInitializer (int []array){
         chunks = new int[numOfEdgeNodes][chunkSize];
         int lastIndex=0;
@@ -75,10 +83,12 @@ public class StaticServer implements ServerStrategy{
         }
         return totalSum;
     }
-}
 
-/*
-            982473,2349587,356,34567,9678123,6789,345623,67845,8,23,9,3456,234,67,237698,2346,32548,
-            789,15467,7890,23462,9234,8564,3,90,6,67,8975645,667,7823,48,9,1,8,89,45346,788,45687,9,
-            2789,34567845,257,987,4,768,43,455,234,4567,87
-            */
+    public int getTotalSum() {
+        return totalSum;
+    }
+
+    public long getElapsedTime() {
+        return timer.getElapsedTime();
+    }
+}

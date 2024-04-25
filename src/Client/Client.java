@@ -20,13 +20,12 @@ public class Client implements Runnable {
             client = new Socket("127.0.0.1", 9999);
             out = new PrintWriter(client.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-
-            // Fogadja az adatot a szervertol
             String input = in.readLine();
 
-            int sum = Arrays.stream(input.split(" "))         // Szóköz mentén felbontjuk a sztringet és egy Streammé alakítjuk az elemeket
-                    .mapToInt(Integer::parseInt)                    // Az elemeket átalakítjuk egész számokká
-                    .map(number -> IntStream.rangeClosed(1, number) // Minden számra alkalmazzuk az osztók összegzését
+            //calculate sum of divisors
+            int sum = Arrays.stream(input.split(" "))
+                    .mapToInt(Integer::parseInt)
+                    .map(number -> IntStream.rangeClosed(1, number)
                             .filter(i -> number % i == 0)
                             .sum())
                     .sum();
