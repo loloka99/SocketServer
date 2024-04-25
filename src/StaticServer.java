@@ -100,13 +100,6 @@ public class Server {
             return new int[0];
         }
     }
-
-    public static void main(String[] args) {
-        Server server = new Server();
-        server.run();
-        System.out.println(server.calculateSumOfAllResponse());
-    }
-
 }
 
 /*
