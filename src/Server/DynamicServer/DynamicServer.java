@@ -13,7 +13,7 @@ import java.util.List;
 public class DynamicServer implements ServerStrategy {
     private ServerSocket server;
     
-    private final int[] array = (new Task()).readTaskFromFile();
+    private final int[] array = (new Task()).readTaskFromFile("StaticServer/input.txt");
     private int chunkSize;
     private int totalSum = 0;
     private int [][]chunks;

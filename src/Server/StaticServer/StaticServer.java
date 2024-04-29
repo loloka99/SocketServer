@@ -16,7 +16,7 @@ public class StaticServer implements ServerStrategy {
 
     private ServerSocket server;
     private final int numOfEdgeNodes = 3;
-    private int[] array = (new Task()).readTaskFromFile();
+    private int[] array = (new Task()).readTaskFromFile("StaticServer/input.txt");
     private int chunkSize;
     private int totalSum = 0;
     private int [][]chunks;

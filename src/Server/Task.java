@@ -5,8 +5,8 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 public class Task {
-    public int[] readTaskFromFile(){
-        String fileName = "input.txt";
+    public int[] readTaskFromFile(String fileName) {
+
         try {
             File file = new File(fileName);
             Scanner scanner = new Scanner(file);
