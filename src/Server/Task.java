@@ -6,7 +6,7 @@ import java.util.Scanner;
 
 public class Task {
     public int[] readTaskFromFile(){
-        String fileName = "src/Server/input.txt";
+        String fileName = "input.txt";
         try {
             File file = new File(fileName);
             Scanner scanner = new Scanner(file);

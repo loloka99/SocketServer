@@ -1,4 +1,8 @@
-package Server;
+package Server.StaticServer;
+
+import Server.ServerStrategy;
+import Server.Task;
+import Server.TimeMeasurement;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -7,7 +11,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class StaticServer implements ServerStrategy{
+public class StaticServer implements ServerStrategy {
+
 
     private ServerSocket server;
     private final int numOfEdgeNodes = 3;
