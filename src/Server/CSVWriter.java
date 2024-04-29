@@ -19,18 +19,17 @@ public class CSVWriter {
         try{
             csvWriter = new FileWriter(filePath, true);
 
-            // Új sor hozzáadása a CSV fájlhoz
-            for (int i = 0; i < clientElapsedTimes.size(); i++) {
-                csvWriter.append(String.valueOf(clientElapsedTimes.get(i)));
-                if (i != clientElapsedTimes.size() - 1) {
-                    csvWriter.append(',');
-                }
+            // Write elapsed times to CSV file
+            for (Long clientElapsedTime : clientElapsedTimes) {
+                csvWriter.append(String.valueOf(clientElapsedTime));
+                csvWriter.append(',');
             }
+            // Write total elapsed time to CSV file
             csvWriter.append(String.valueOf(totalElapsedTime));
             csvWriter.append('\n');
         }catch (Exception e){
             e.printStackTrace();
-    }finally {
+        }finally {
             if (csvWriter != null) {
                 try {
                     csvWriter.flush();
@@ -40,5 +39,5 @@ public class CSVWriter {
                 }
             }
         }
-        }
+    }
 }
