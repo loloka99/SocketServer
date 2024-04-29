@@ -14,6 +14,9 @@ public class ElapsedTimes {
         this.totalElapsedTime = totalElapsedTime;
     }
 
+    public long getTotalElapsedTime() {
+        return totalElapsedTime;
+    }
     public ArrayList<Long> getClientElapsedTimes() {
         return clientElapsedTimes;
     }
