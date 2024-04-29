@@ -7,7 +7,7 @@ public class ElapsedTimes {
     private ArrayList<Long> clientElapsedTimes = new ArrayList<>();
     private long totalElapsedTime;
 
-    public void addClientElapsedTime(int clientPort, long elapsedTime){
+    public void addClientElapsedTime(long elapsedTime){
         clientElapsedTimes.add(elapsedTime);
     }
     public void setTotalElapsedTime(long totalElapsedTime) {
