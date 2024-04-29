@@ -1,8 +1,6 @@
 package Server.StaticServer;
 
-import Server.ServerStrategy;
-import Server.Task;
-import Server.TimeMeasurement;
+import Server.*;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -20,9 +18,9 @@ public class StaticServer implements ServerStrategy {
     private int chunkSize;
     private int totalSum = 0;
     private int [][]chunks;
-    int respondedNodes = 0;
     private final ArrayList<ClientHandler> clientHandlers = new ArrayList<>();
     TimeMeasurement timer = new TimeMeasurement();
+    ElapsedTimes elapsedTimes = new ElapsedTimes();
 
     public StaticServer() {
         try {
@@ -39,9 +37,10 @@ public class StaticServer implements ServerStrategy {
         List<Thread> clientThreads = new ArrayList<>();
         System.out.println("Server is running...");
         try {
+            // Accept clients
             while (clientNumber < numOfEdgeNodes) {
                 Socket client = server.accept();
-                ClientHandler clientHandler = new ClientHandler(client, chunks[clientNumber]);
+                ClientHandler clientHandler = new ClientHandler(client, chunks[clientNumber], elapsedTimes);
                 clientHandlers.add(clientHandler);
                 clientNumber++;
             }
@@ -58,19 +57,27 @@ public class StaticServer implements ServerStrategy {
             }
             totalSum = calculateTotal();
             timer.stop();
+
+            writeTimeToFile();
+
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
+    //Write elapsed times to CSV file
+    private void writeTimeToFile(){
+        elapsedTimes.setTotalElapsedTime(timer.getElapsedTime());
+        CSVWriter csvWriter = new CSVWriter(elapsedTimes.getClientElapsedTimes(), elapsedTimes.getTotalElapsedTime());
+        csvWriter.writeToFile("elapsedTimes.csv");
+    }
 
-    //dividing task
+    //Chunk initializer
     public void chunkInitializer (int []array){
         chunks = new int[numOfEdgeNodes][chunkSize];
         int lastIndex=0;
         for (int i=0; i<numOfEdgeNodes ; i++){
-            int endIndex = (chunkSize*i) + chunkSize;
             for (int j=0; j<chunkSize; j++){
                 chunks[i][j] = array[lastIndex];
                 lastIndex++;
@@ -81,7 +88,7 @@ public class StaticServer implements ServerStrategy {
             chunks[numOfEdgeNodes-1][chunkSize++] = array[lastIndex++];
         }
     }
-
+    //Calculate total sum
     public int calculateTotal() {
         for (ClientHandler clientHandler : clientHandlers) {
             totalSum += clientHandler.getResult();
