@@ -1,7 +1,6 @@
 package Server.DynamicServer;
 
-import Server.ServerStrategy;
-import Server.Task;
+import Server.*;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -17,9 +16,11 @@ public class DynamicServer implements ServerStrategy {
     private int totalSum;
     private static final ArrayList<ClientHandler> clientHandlers = new ArrayList<>();
     private final List<Thread> threads = new ArrayList<>();
+    private final TimeMeasurement timer = new TimeMeasurement();
+    private final ElapsedTimes elapsedTimes = new ElapsedTimes();
 
-    static int iteration = 0;
-    static int miniTaskSize = 3;
+    private static int iteration = 0;
+    private static final int miniTaskSize = 3;
 
     public DynamicServer() {
         try {
@@ -35,9 +36,10 @@ public class DynamicServer implements ServerStrategy {
         try {
             while (clientHandlers.size() < 3) {
                 Socket client = server.accept();
-                ClientHandler clientHandler = new ClientHandler(client);
+                ClientHandler clientHandler = new ClientHandler(client, elapsedTimes);
                 clientHandlers.add(clientHandler);
             }
+            timer.start();
             for (ClientHandler clientHandler : clientHandlers) {
                 Thread thread = new Thread(clientHandler);
                 thread.start();
@@ -54,6 +56,8 @@ public class DynamicServer implements ServerStrategy {
 
             totalSum = calculateTotal();
             server.close();
+            timer.stop();
+            writeTimeToFile();
         } catch (IOException e) {
             System.err.println("Error occurred while running server.");
         }
@@ -89,6 +93,12 @@ public class DynamicServer implements ServerStrategy {
 
     @Override
     public long getElapsedTime() {
-        return 0;
+        return timer.getElapsedTime();
+    }
+
+    private void writeTimeToFile(){
+        elapsedTimes.setTotalElapsedTime(timer.getElapsedTime());
+        CSVWriter csvWriter = new CSVWriter(elapsedTimes.getClientElapsedTimes(), elapsedTimes.getTotalElapsedTime());
+        csvWriter.writeToFile("dynamicElapsedTimes.csv");
     }
 }
