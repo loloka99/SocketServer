@@ -7,18 +7,25 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class DynamicServer implements ServerStrategy {
     private ServerSocket server;
-    private final int[] array = (new Task()).readTaskFromFile("src/Server/DynamicServer/input.txt");
+    private static final int[] array = (new Task()).readTaskFromFile("src/Server/DynamicServer/input.txt");
     private int totalSum;
-    private final ArrayList<ClientHandler> clientHandlers = new ArrayList<>();
+    private static final ArrayList<ClientHandler> clientHandlers = new ArrayList<>();
+    private final List<Thread> threads = new ArrayList<>();
+
+    static int iteration = 0;
+    static int miniTaskSize = 3;
 
     public DynamicServer() {
         try {
             server = new ServerSocket(9999);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Could not start server.");
         }
     }
 
@@ -26,81 +33,45 @@ public class DynamicServer implements ServerStrategy {
     public void run() {
         System.out.println("Server is running...");
         try {
-            int iteration = 0;
-            int miniTaskSize = 3;
             while (clientHandlers.size() < 3) {
                 Socket client = server.accept();
-                ClientHandler clientHandler = new ClientHandler(client, array);
+                ClientHandler clientHandler = new ClientHandler(client);
                 clientHandlers.add(clientHandler);
             }
             for (ClientHandler clientHandler : clientHandlers) {
-                new Thread(clientHandler).start();
+                Thread thread = new Thread(clientHandler);
+                thread.start();
+                threads.add(thread);
             }
 
-            for (ClientHandler clientHandler : clientHandlers) {
-                int[] miniTask = new int[miniTaskSize];
-                for (int i = 0; i < miniTaskSize; i++) {
-                    if (iteration == array.length) break;
-                    miniTask[i] = array[iteration++];
-                }
-                clientHandler.sendTask(miniTask);
-
-            }
-            System.out.println("Tasks sent");
-
-            while (iteration < array.length){
-
-                waitForAnyClientToFinish();
-                ClientHandler fastestClient = findFastestClient();
-
-                if (fastestClient != null) {
-                    int[] miniTask = new int[miniTaskSize];
-                    for (int i = 0; i< miniTaskSize; i++) {
-                        if (iteration == array.length) break;
-                        miniTask[i] = array[iteration++];
-                    }
-                    fastestClient.sendTask(miniTask);
+            for (Thread thread : threads) {
+                try {
+                    thread.join();
+                } catch (InterruptedException e) {
+                    System.err.println("Thread interrupted.");
                 }
             }
 
-            for (ClientHandler clientHandler : clientHandlers) {
-                clientHandler.sendDone();
-            }
-
-            for (ClientHandler clientHandler : clientHandlers) {
-                clientHandler.waitForCompletion();
-            }
             totalSum = calculateTotal();
             server.close();
         } catch (IOException e) {
-            e.printStackTrace();
-
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            System.err.println("Error occurred while running server.");
         }
 
     }
-
-    private ClientHandler findFastestClient() {
-        ClientHandler fastestClient = null;
-        long minFinishTime = Long.MAX_VALUE;
-        for (ClientHandler clientHandler : clientHandlers) {
-            System.out.println("Client finish time: " + clientHandler.getFinishTime());
-            if (clientHandler.getFinishTime() < minFinishTime) {
-                minFinishTime = clientHandler.getFinishTime();
-                fastestClient = clientHandler;
-            }
-        }
-        return fastestClient;
-    }
-
-    private void waitForAnyClientToFinish() throws InterruptedException {
-        for (ClientHandler clientHandler : clientHandlers) {
-            synchronized (clientHandlers) {
-                while (!clientHandler.isFinished()) {
-                    clientHandler.wait();
+    public static String getMiniTask(){
+        if (iteration == array.length) return "DONE";
+        synchronized (clientHandlers){
+            int[] miniTask = new int[miniTaskSize];
+            for (int i = 0; i< miniTaskSize; i++) {
+                if (iteration == array.length) {
+                    break;
                 }
+                miniTask[i] = array[iteration++];
             }
+            return Arrays.stream(miniTask)
+                    .mapToObj(String::valueOf)
+                    .collect(Collectors.joining(" "));
         }
     }
 
