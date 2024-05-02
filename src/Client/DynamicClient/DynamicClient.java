@@ -22,7 +22,6 @@ public class DynamicClient implements Runnable {
 
             while (true) {
                 String input = in.readLine();
-                System.out.println("Received: " + input);
                 if (input.equals("DONE")) {
                     break;
                 }
@@ -35,7 +34,6 @@ public class DynamicClient implements Runnable {
                                 .sum())
                         .sum();
                 out.println(sum);
-                System.out.println("Sent: " + sum);
             }
             out.println("DONE");
             shutDown();
