@@ -20,11 +20,12 @@ public class DynamicServer implements ServerStrategy {
     private final ElapsedTimes elapsedTimes = new ElapsedTimes();
 
     private static int iteration = 0;
-    private static final int miniTaskSize = 3;
+    private static int miniTaskSize;
 
-    public DynamicServer() {
+    public DynamicServer(int miniTaskSize) {
         try {
             server = new ServerSocket(9999);
+            DynamicServer.miniTaskSize = miniTaskSize;
         } catch (IOException e) {
             System.err.println("Could not start server.");
         }
