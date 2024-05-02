@@ -5,9 +5,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class CSVWriter {
-    private final String csvFile = "elapsedTimes.csv";
-    private ArrayList<Long> clientElapsedTimes = new ArrayList<>();
-    private long totalElapsedTime;
+    private final ArrayList<Long> clientElapsedTimes;
+    private final long totalElapsedTime;
 
     public CSVWriter(ArrayList<Long> clientElapsedTimes, long totalElapsedTime) {
         this.clientElapsedTimes = clientElapsedTimes;
@@ -28,14 +27,14 @@ public class CSVWriter {
             csvWriter.append(String.valueOf(totalElapsedTime));
             csvWriter.append('\n');
         }catch (Exception e){
-            e.printStackTrace();
+            System.err.println("Error occurred while writing to CSV file.");
         }finally {
             if (csvWriter != null) {
                 try {
                     csvWriter.flush();
                     csvWriter.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    System.err.println("Error occurred while closing CSV writer.");
                 }
             }
         }
