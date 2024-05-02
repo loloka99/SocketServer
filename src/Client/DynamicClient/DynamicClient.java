@@ -26,8 +26,10 @@ public class DynamicClient implements Runnable {
                 if (input.equals("DONE")) {
                     break;
                 }
+                // Calculate sum of divisors
                 int sum = Arrays.stream(input.split(" "))
                         .mapToInt(Integer::parseInt)
+                        .filter(number -> number != 0)
                         .map(number -> IntStream.rangeClosed(1, number)
                                 .filter(i -> number % i == 0)
                                 .sum())
@@ -38,7 +40,7 @@ public class DynamicClient implements Runnable {
             out.println("DONE");
             shutDown();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error occurred while running client.");
         }
     }
 
@@ -50,7 +52,7 @@ public class DynamicClient implements Runnable {
                 client.close();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error occurred while shutting down client.");
         }
     }
 
