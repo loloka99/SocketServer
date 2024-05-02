@@ -1,4 +1,4 @@
-package Client;
+package Client.DynamicClient;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -8,30 +8,34 @@ import java.net.Socket;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
-public class Client implements Runnable {
+public class DynamicClient implements Runnable {
     private Socket client;
     private BufferedReader in;
     private PrintWriter out;
-    private boolean done;
 
     @Override
     public void run() {
         try {
-            client = new Socket("34.125.109.197", 9999);
+            client = new Socket("127.0.0.1", 9999);
             out = new PrintWriter(client.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-            String input = in.readLine();
 
-            //calculate sum of divisors
-            int sum = Arrays.stream(input.split(" "))
-                    .mapToInt(Integer::parseInt)
-                    .map(number -> IntStream.rangeClosed(1, number)
-                            .filter(i -> number % i == 0)
-                            .sum())
-                    .sum();
-
-            out.println(sum);
-
+            while (true) {
+                String input = in.readLine();
+                System.out.println("Received: " + input);
+                if (input.equals("DONE")) {
+                    break;
+                }
+                int sum = Arrays.stream(input.split(" "))
+                        .mapToInt(Integer::parseInt)
+                        .map(number -> IntStream.rangeClosed(1, number)
+                                .filter(i -> number % i == 0)
+                                .sum())
+                        .sum();
+                out.println(sum);
+                System.out.println("Sent: " + sum);
+            }
+            out.println("DONE");
             shutDown();
         } catch (IOException e) {
             e.printStackTrace();
@@ -39,7 +43,6 @@ public class Client implements Runnable {
     }
 
     public void shutDown() {
-        done = true;
         try {
             in.close();
             out.close();
@@ -52,7 +55,7 @@ public class Client implements Runnable {
     }
 
     public static void main(String[] args) {
-        Client client = new Client();
+        DynamicClient client = new DynamicClient();
         client.run();
     }
 }
